@@ -52,19 +52,4 @@ jobs:
             dist/SHA256SUMS
           prerelease: ${{ startsWith(github.ref_name, 'v0.') || contains(github.ref_name, '-') }}
           generate_release_notes: true
-          body: |
-            ## Baixar e usar
-
-            **Windows 10 ou 11:** baixe `bobina-windows-amd64.exe` e abra com dois cliques.
-            Como o executável não é assinado, o Windows mostra o aviso do SmartScreen:
-            clique em **Mais informações → Executar assim mesmo**.
-
-            **Linux (Ubuntu 22.04 ou mais novo):** baixe `bobina-linux-amd64` e rode:
-            ```bash
-            chmod +x bobina-linux-amd64
-            ./bobina-linux-amd64
-            ```
-            Se a janela não abrir, instale a biblioteca da janela:
-            `sudo apt install libwebkit2gtk-4.1-0`.
-
-            Para conferir o arquivo baixado: `sha256sum -c SHA256SUMS --ignore-missing`.
+          body_path: .github/release-notes.md

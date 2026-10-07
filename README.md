@@ -18,15 +18,28 @@ desligada...
 ## Baixar e usar
 
 Não precisa instalar Go nem nada de desenvolvimento: baixe o executável da
-[última versão](https://github.com/AnaMarcelaSilva/bobina-emulador/releases/latest).
+[última versão](https://github.com/AnaMarcelaSilva/bobina-emulador/releases/latest)
+(em **Assets**) e siga só a parte do seu sistema.
 
-| Sistema | Arquivo | Como abrir |
-|---|---|---|
-| Windows 10 ou 11 | `bobina-windows-amd64.exe` | Dois cliques. O Windows avisa que o app não é reconhecido (ele não é assinado): **Mais informações → Executar assim mesmo**. |
-| Linux (Ubuntu 22.04 ou mais novo) | `bobina-linux-amd64` | `chmod +x bobina-linux-amd64` e depois `./bobina-linux-amd64`. Se a janela não abrir: `sudo apt install libwebkit2gtk-4.1-0`. |
+### Windows 10 ou 11
 
-Cada versão traz o arquivo `SHA256SUMS` para conferir que o download não foi
-alterado: `sha256sum -c SHA256SUMS --ignore-missing`.
+1. Baixe `bobina-windows-amd64.exe`.
+2. Abra com dois cliques.
+3. Se aparecer "O Windows protegeu o computador", clique em **Mais informações**
+   e depois em **Executar assim mesmo** (o programa não tem assinatura digital).
+
+### Linux (Ubuntu 22.04 ou mais novo)
+
+1. Baixe `bobina-linux-amd64`.
+2. No terminal, na pasta do download:
+   ```bash
+   chmod +x bobina-linux-amd64
+   ./bobina-linux-amd64
+   ```
+3. Se a janela não abrir: `sudo apt install libwebkit2gtk-4.1-0` e rode de novo.
+
+A página de cada versão explica também como conferir o download com o
+arquivo `SHA256SUMS`.
 
 ## Compilar o código
 
