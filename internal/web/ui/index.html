@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bobina</title>
+<link rel="icon" href="icone.svg" type="image/svg+xml">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="topo">
+  <div class="marca"><img src="icone.svg" alt="" width="20" height="20"><span>Bobina</span></div>
+  <nav class="guiches" id="guiches" aria-label="Impressoras no balcão"></nav>
+  <div class="topo-acoes">
+    <div class="grupo" role="group" aria-label="Tamanho do papel">
+      <button class="ctl icone" id="zoom-menos" title="Diminuir o papel" aria-label="Diminuir o papel"><svg><use href="#i-menos"/></svg></button>
+      <button class="ctl icone" id="zoom-mais" title="Aumentar o papel" aria-label="Aumentar o papel"><svg><use href="#i-mais"/></svg></button>
+    </div>
+    <button class="ctl icone" id="btn-tema" title="Tema: automático" aria-label="Trocar o tema"><svg><use href="#i-tema"/></svg></button>
+    <button class="ctl primario" id="btn-nova"><svg><use href="#i-mais"/></svg>Nova impressora</button>
+    <span id="ao-vivo" class="ao-vivo" role="status" aria-label="Ligado ao emulador" title="Ligado ao emulador"></span>
+  </div>
+</header>
+
+<main id="balcao" class="balcao" aria-live="polite"></main>
+
+<div id="vazio-geral" class="vazio-geral" hidden>
+  <h1>Nenhuma impressora no balcão</h1>
+  <p id="vazio-geral-texto"></p>
+  <button class="ctl primario" data-acao="nova"><svg><use href="#i-mais"/></svg>Nova impressora</button>
+</div>
+
+<aside id="lateral" class="lateral" hidden aria-labelledby="lat-titulo">
+  <header>
+    <div>
+      <h2 id="lat-titulo"></h2>
+      <div id="lat-sub" class="lat-sub"></div>
+    </div>
+    <button class="ctl icone" id="lat-fechar" aria-label="Fechar" title="Fechar (Esc)"><svg><use href="#i-fechar"/></svg></button>
+  </header>
+  <div id="lat-avisos" class="lat-avisos"></div>
+  <div class="abas" id="lat-abas" role="tablist"></div>
+  <div class="lat-corpo" id="lat-corpo"></div>
+  <footer id="lat-rodape"></footer>
+</aside>
+<div id="veu" class="veu" hidden></div>
+
+<div id="pop" class="pop" popover></div>
+
+<dialog id="dlg-impressora" class="dialogo">
+  <form id="form-impressora" method="dialog">
+    <h2 id="dlg-titulo">Nova impressora</h2>
+    <label class="campo">Nome
+      <input name="nome" required placeholder="Caixa 2, Cozinha, Etiquetas do estoque">
+    </label>
+    <fieldset class="campo">
+      <legend>Linguagem</legend>
+      <div class="segmentado">
+        <label><input type="radio" name="linguagem" value="escpos" checked><span><strong>ESC/POS</strong><small>Cupom: Epson, Bematech, Elgin, PRN</small></span></label>
+        <label><input type="radio" name="linguagem" value="zpl"><span><strong>ZPL</strong><small>Etiqueta: Zebra e compatíveis</small></span></label>
+      </div>
+    </fieldset>
+    <fieldset class="campo">
+      <legend>Conexão</legend>
+      <div class="segmentado tres">
+        <label><input type="radio" name="conexao" value="rede" checked><span><svg><use href="#i-rede"/></svg><strong>Rede</strong></span></label>
+        <label><input type="radio" name="conexao" value="serial"><span><svg><use href="#i-serial"/></svg><strong>Serial</strong></span></label>
+        <label><input type="radio" name="conexao" value="pasta"><span><svg><use href="#i-pasta"/></svg><strong>Pasta PRN</strong></span></label>
+      </div>
+    </fieldset>
+    <div class="grade" data-se="rede">
+      <label class="campo">Escutar em
+        <select name="host">
+          <option value="0.0.0.0">Toda a rede (0.0.0.0)</option>
+          <option value="127.0.0.1">Só este computador (127.0.0.1)</option>
+        </select>
+      </label>
+      <label class="campo">Porta TCP
+        <input name="porta" type="number" min="1" max="65535" value="9100">
+      </label>
+    </div>
+    <div class="grade" data-se="serial">
+      <label class="campo">Porta
+        <select name="serial" id="sel-serial"></select>
+      </label>
+      <label class="campo">Velocidade (bps)
+        <select name="baud">
+          <option>9600</option><option>19200</option><option>38400</option><option>57600</option><option>115200</option>
+        </select>
+      </label>
+      <p class="dica larga">No Linux, a porta virtual aparece como <code>/tmp/bobina-…</code>; configure o sistema nela. No Windows, crie um par com o com0com (ex.: COM10 e COM11), escolha uma aqui e use a outra no sistema.</p>
+    </div>
+    <div data-se="pasta">
+      <label class="campo">Pasta vigiada
+        <input name="pasta" placeholder="~/bobina/fila">
+      </label>
+      <p class="dica">Cada arquivo que aparecer nessa pasta é impresso e movido para a subpasta <code>impressos</code>.</p>
+    </div>
+    <div class="grade" data-se="escpos">
+      <label class="campo">Bobina
+        <select name="bobina">
+          <option value="80-48">80 mm · 48 colunas</option>
+          <option value="80-42">80 mm · 42 colunas (Bematech)</option>
+          <option value="58-32">58 mm · 32 colunas</option>
+        </select>
+      </label>
+      <label class="campo">Página de código inicial
+        <select name="paginaCodigo" id="sel-pagina"></select>
+      </label>
+      <label class="campo larga">Conjunto de comandos ao ligar
+        <select name="modoComandos">
+          <option value="escpos">ESC/POS (padrão: Epson, Elgin, Tectoy, Bematech no modo ESC/POS)</option>
+          <option value="bematech">ESC/Bematech (Bematech no modo próprio)</option>
+        </select>
+      </label>
+      <p class="dica larga">O sistema também pode trocar o conjunto com o comando GS F9 da Bematech; quando ele pede para gravar, a impressora passa a ligar nesse modo.</p>
+    </div>
+    <div class="grade tres" data-se="zpl">
+      <label class="campo">Largura (mm)
+        <input name="larguraMM" type="number" step="0.1" min="10" value="100">
+      </label>
+      <label class="campo">Altura (mm)
+        <input name="alturaMM" type="number" step="0.1" min="10" value="150">
+      </label>
+      <label class="campo">Resolução
+        <select name="dpmm">
+          <option value="8">203 dpi</option>
+          <option value="12">300 dpi</option>
+          <option value="24">600 dpi</option>
+        </select>
+      </label>
+    </div>
+    <p class="erro-form" id="erro-form" role="alert" hidden></p>
+    <footer>
+      <button type="button" class="ctl perigo" id="btn-remover">Remover</button>
+      <span class="espaco"></span>
+      <button type="button" class="ctl" id="btn-cancelar">Cancelar</button>
+      <button type="submit" class="ctl primario" id="btn-salvar">Salvar</button>
+    </footer>
+  </form>
+</dialog>
+
+<dialog id="dlg-confirmar" class="dialogo pequeno">
+  <form method="dialog">
+    <h2 id="conf-titulo"></h2>
+    <p id="conf-texto"></p>
+    <footer>
+      <span class="espaco"></span>
+      <button class="ctl" value="nao">Cancelar</button>
+      <button class="ctl perigo-cheio" value="sim">Remover</button>
+    </footer>
+  </form>
+</dialog>
+
+<input type="file" id="arquivo" multiple hidden>
+<div id="toasts" class="toasts" role="status"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mais" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-menos" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-copiar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></g></symbol>
+    <symbol id="i-energia" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 7a8 8 0 1 0 11.4 0"/></g></symbol>
+    <symbol id="i-impressora" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></g></symbol>
+    <symbol id="i-seta" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-ajustes" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></g></symbol>
+    <symbol id="i-atividade" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-pontos" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></g></symbol>
+    <symbol id="i-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-baixar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></g></symbol>
+    <symbol id="i-arquivo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></g></symbol>
+    <symbol id="i-rede" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="3" width="16" height="10" rx="2"/><path d="M12 13v4M5 21h14M12 17v4"/></g></symbol>
+    <symbol id="i-serial" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8h18l-2 8H5z"/><circle cx="8" cy="12" r=".6" fill="currentColor"/><circle cx="12" cy="12" r=".6" fill="currentColor"/><circle cx="16" cy="12" r=".6" fill="currentColor"/></g></symbol>
+    <symbol id="i-pasta" viewBox="0 0 24 24"><path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tema" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></g></symbol>
+    <symbol id="i-alerta" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18v.01"/></g></symbol>
+    <symbol id="i-olho" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g></symbol>
+    <symbol id="i-olho-fechado" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a10 10 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></g></symbol>
+    <symbol id="i-engrenagem" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
+    <symbol id="i-lixo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol>
+  </defs>
+</svg>
+<script src="app.js"></script>
+</body>
+</html>

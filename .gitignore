@@ -1,0 +1,14 @@
+# Executáveis gerados
+/bobina
+dist/
+*.exe
+
+# IDE
+.idea/
+
+# Arquivos de trabalho da skill Impeccable (prints e caminhos desta máquina)
+.impeccable/review/
+.impeccable/questions/
+.impeccable/critique/
+.impeccable/build/
+.impeccable/mocks/
