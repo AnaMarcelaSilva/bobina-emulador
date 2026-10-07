@@ -31,12 +31,17 @@ Não precisa instalar Go nem nada de desenvolvimento: baixe o executável da
 ### Linux (Ubuntu 22.04 ou mais novo)
 
 1. Baixe `bobina-linux-amd64`.
-2. No terminal, na pasta do download:
+2. No terminal, na pasta do download, instale:
    ```bash
    chmod +x bobina-linux-amd64
-   ./bobina-linux-amd64
+   ./bobina-linux-amd64 instalar
    ```
-3. Se a janela não abrir: `sudo apt install libwebkit2gtk-4.1-0` e rode de novo.
+3. Procure por **Bobina** nos aplicativos e abra. O arquivo baixado pode ser apagado.
+
+Se aparecer um erro com `libwebkit2gtk-4.1`: `sudo apt install libwebkit2gtk-4.1-0`
+e repita o passo 2. A instalação fica só no seu usuário (sem `sudo`); para
+atualizar, rode `instalar` com a versão nova; para remover,
+`~/.local/bin/bobina desinstalar`.
 
 A página de cada versão explica também como conferir o download com o
 arquivo `SHA256SUMS`.
@@ -47,8 +52,8 @@ arquivo `SHA256SUMS`.
 go run .                 # abre o aplicativo
 go run . -sem-janela     # só o servidor (CI, servidor de testes)
 make                     # gera os executáveis de Linux, Windows e macOS em dist/
-make instalar            # Linux: instala para o seu usuário e põe no menu de aplicativos
-make desinstalar         # remove o que o "make instalar" colocou
+make instalar            # Linux: compila e roda "bobina instalar" (menu de aplicativos)
+make desinstalar         # roda "bobina desinstalar"
 ```
 
 Precisa do Go 1.26 ou mais novo. Se o `go` do sistema for mais antigo, indique outro:

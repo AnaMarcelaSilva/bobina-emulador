@@ -5,6 +5,8 @@
 //	bobina -sem-janela           só o servidor (CI, Docker, servidor de testes)
 //	bobina enviar HOST:PORTA arq manda um arquivo para uma impressora de rede
 //	bobina status HOST:PORTA     pergunta o status ESC/POS (ou ZPL com -zpl)
+//	bobina instalar              Linux: instala para o usuário e põe no menu de aplicativos
+//	bobina desinstalar           remove o que o "instalar" colocou
 package main
 
 import (
@@ -41,6 +43,10 @@ func main() {
 			sair(comandoEnviar(os.Args[2:]))
 		case "status":
 			sair(comandoStatus(os.Args[2:]))
+		case "instalar":
+			sair(comandoInstalar())
+		case "desinstalar":
+			sair(comandoDesinstalar())
 		}
 	}
 

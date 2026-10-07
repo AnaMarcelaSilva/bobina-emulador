@@ -11,16 +11,20 @@ Escolha o seu sistema e siga só a parte dele. Os arquivos estão em **Assets**,
 ### Linux (Ubuntu 22.04 ou mais novo)
 
 1. Baixe **`bobina-linux-amd64`**.
-2. No terminal, na pasta do download, rode:
+2. No terminal, na pasta do download, instale:
    ```bash
    cd ~/Downloads
    chmod +x bobina-linux-amd64
-   ./bobina-linux-amd64
+   ./bobina-linux-amd64 instalar
    ```
-3. Se a janela não abrir, instale a biblioteca que ela usa e rode de novo:
-   ```bash
-   sudo apt install libwebkit2gtk-4.1-0
-   ```
+3. Procure por **Bobina** nos aplicativos e abra. O arquivo baixado pode ser apagado.
+
+Se aparecer um erro com `libwebkit2gtk-4.1`, instale a biblioteca da janela e repita o passo 2:
+```bash
+sudo apt install libwebkit2gtk-4.1-0
+```
+
+Para atualizar, baixe a versão nova e rode `instalar` de novo. Para remover: `~/.local/bin/bobina desinstalar` (as impressoras configuradas são mantidas).
 
 ---
 
