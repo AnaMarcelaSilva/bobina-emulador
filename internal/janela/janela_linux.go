@@ -83,9 +83,13 @@ func Abrir(url string, icone []byte) error {
 	}
 	caminhoIcone := ""
 	if len(icone) > 0 {
-		arq := filepath.Join(os.TempDir(), "bobina-icone.svg")
-		if os.WriteFile(arq, icone, 0o644) == nil {
-			caminhoIcone = arq
+		// Na pasta de cache do usuário, não no /tmp: lá outro usuário poderia
+		// deixar um atalho com esse nome apontando para um arquivo nosso.
+		if cache, err := os.UserCacheDir(); err == nil {
+			arq := filepath.Join(cache, "bobina", "icone.svg")
+			if os.MkdirAll(filepath.Dir(arq), 0o700) == nil && os.WriteFile(arq, icone, 0o600) == nil {
+				caminhoIcone = arq
+			}
 		}
 	}
 	cURL, cTitulo, cIcone := C.CString(url), C.CString(titulo), C.CString(caminhoIcone)

@@ -11,11 +11,20 @@ import (
 // vigiaPasta imprime os arquivos (.prn, .txt, .bin...) que aparecem numa
 // pasta, como uma fila de impressão. Cada arquivo impresso vai para a
 // subpasta "impressos". Desligada, os arquivos ficam esperando na pasta.
+//
+// Só arquivos com extensão de impressão são tocados: se a pasta for
+// configurada errado (a pasta de documentos, por exemplo), nada mais é movido.
 type vigiaPasta struct {
 	parada chan struct{}
 }
 
 const subpastaImpressos = "impressos"
+
+// extensoesImpressao são os arquivos que um sistema manda para uma
+// impressora "em arquivo".
+var extensoesImpressao = map[string]bool{
+	".prn": true, ".txt": true, ".bin": true, ".raw": true, ".zpl": true, ".esc": true, ".dat": true,
+}
 
 func iniciarPasta(imp *Impressora, cfg Config) (conexao, string, error) {
 	pasta := cfg.Pasta
@@ -54,7 +63,7 @@ func (v *vigiaPasta) vigiar(imp *Impressora, pasta string) {
 		vistos := map[string]bool{}
 		for _, e := range entradas {
 			nome := e.Name()
-			if e.IsDir() || strings.HasPrefix(nome, ".") || strings.HasSuffix(nome, ".tmp") {
+			if e.IsDir() || strings.HasPrefix(nome, ".") || !extensoesImpressao[strings.ToLower(filepath.Ext(nome))] {
 				continue
 			}
 			info, err := e.Info()

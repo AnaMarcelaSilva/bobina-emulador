@@ -303,3 +303,19 @@ func TestGSF9GravaOModoBematech(t *testing.T) {
 		t.Fatalf("depois de gravado, o ESC E não deveria comer letras: %+v", novos)
 	}
 }
+
+func TestPastaSoMexeEmArquivosDeImpressao(t *testing.T) {
+	pasta := t.TempDir()
+	documento := filepath.Join(pasta, "contrato.docx")
+	if err := os.WriteFile(documento, []byte("não é para imprimir"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	g := novoGerenciador(t, Config{ID: "prn", Nome: "PRN", Conexao: Pasta, Pasta: pasta})
+	if err := os.WriteFile(filepath.Join(pasta, "cupom.prn"), []byte("OI\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	esperarTrabalhos(t, g.Buscar("prn"), 1)
+	if _, err := os.Stat(documento); err != nil {
+		t.Fatalf("o .docx não poderia ter saído do lugar: %v", err)
+	}
+}

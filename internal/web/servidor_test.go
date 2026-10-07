@@ -77,3 +77,34 @@ func TestAPI(t *testing.T) {
 		t.Errorf("impressora inexistente devolveu %d", s)
 	}
 }
+
+// Um site aberto no navegador não pode mexer na API local, nem por um POST
+// "simples" de outro site nem por DNS rebinding.
+func TestProtecaoContraOutrosSites(t *testing.T) {
+	alvo := Protegido(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNoContent)
+	}), true)
+	casos := []struct {
+		nome, host, origem string
+		esperado           int
+	}{
+		{"a própria tela", "127.0.0.1:8631", "http://127.0.0.1:8631", http.StatusNoContent},
+		{"curl ou teste (sem Origin)", "127.0.0.1:8631", "", http.StatusNoContent},
+		{"localhost", "localhost:8631", "", http.StatusNoContent},
+		{"outro site", "127.0.0.1:8631", "https://site-malicioso.com", http.StatusForbidden},
+		{"página sem origem (null)", "127.0.0.1:8631", "null", http.StatusForbidden},
+		{"DNS rebinding", "site-malicioso.com:8631", "http://site-malicioso.com:8631", http.StatusForbidden},
+	}
+	for _, c := range casos {
+		req := httptest.NewRequest("POST", "/api/impressoras", strings.NewReader(`{"nome":"x","conexao":"pasta","pasta":"~/.ssh"}`))
+		req.Host = c.host
+		if c.origem != "" {
+			req.Header.Set("Origin", c.origem)
+		}
+		rec := httptest.NewRecorder()
+		alvo.ServeHTTP(rec, req)
+		if rec.Code != c.esperado {
+			t.Errorf("%s: esperava %d, veio %d", c.nome, c.esperado, rec.Code)
+		}
+	}
+}

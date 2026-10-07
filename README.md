@@ -47,7 +47,7 @@ Na primeira execução são criadas três impressoras de exemplo: cupom na porta
 |---|---|
 | **Rede** | TCP na porta escolhida (9100 é o padrão das impressoras). A conexão fica aberta: o sistema pode imprimir e pedir status na mesma conexão. |
 | **Serial** | No Linux, deixando a porta em branco, o Bobina cria uma serial virtual e mostra o caminho (`/tmp/bobina-<id>`). No Windows, crie um par com o [com0com](https://com0com.sourceforge.net/) (ex.: COM10 ↔ COM11), escolha uma no Bobina e configure o sistema na outra. Também abre uma porta física. |
-| **Pasta PRN** | Cada arquivo que aparecer na pasta é impresso e movido para `impressos/`. Serve para sistemas que "imprimem em arquivo". |
+| **Pasta PRN** | Cada arquivo de impressão (`.prn`, `.txt`, `.bin`, `.raw`, `.zpl`, `.esc`, `.dat`) que aparecer na pasta é impresso e movido para `impressos/`. Outros arquivos não são tocados. Serve para sistemas que "imprimem em arquivo". |
 
 Para que uma impressora do Windows (driver "Genérico / Somente texto") imprima no
 Bobina, crie nela uma porta **TCP/IP padrão** apontando para `127.0.0.1`, porta
@@ -114,6 +114,13 @@ testes** mostra os comandos prontos para a impressora selecionada.
 | POST | `/api/impressoras/{id}/imprimir` | imprime o corpo da requisição |
 | GET | `/api/trabalhos/{id}` e `/bruto` | detalhe com comandos / bytes originais |
 | GET | `/api/notificacoes` | eventos ao vivo (SSE) |
+
+## Segurança
+
+- A tela e a API ficam só em `127.0.0.1:8631`. Pedidos vindos de outros sites (cabeçalho `Origin` diferente) e de nomes que não sejam `localhost`/`127.0.0.1` são recusados, o que impede que uma página aberta no navegador mexa no emulador (inclusive por DNS rebinding). curl e testes automatizados, que não mandam `Origin`, funcionam normalmente.
+- `-host 0.0.0.0` abre a API para a rede de propósito e **sem autenticação**: use só em rede confiável.
+- As impressoras de rede escutam em `0.0.0.0` por padrão, para que PDVs e outros aparelhos alcancem; escolha "Só este computador" na configuração se não precisar disso.
+- Nada é enviado para fora: cupons e etiquetas são desenhados localmente.
 
 ## Linha de comando
 

@@ -84,7 +84,7 @@ func (s *servidor) listar(w http.ResponseWriter, r *http.Request) {
 
 func (s *servidor) criar(w http.ResponseWriter, r *http.Request) {
 	var c impressora.Config
-	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+	if err := json.NewDecoder(io.LimitReader(r.Body, limiteConfig)).Decode(&c); err != nil {
 		falhar(w, http.StatusBadRequest, err)
 		return
 	}
@@ -100,7 +100,7 @@ func (s *servidor) criar(w http.ResponseWriter, r *http.Request) {
 
 func (s *servidor) atualizar(w http.ResponseWriter, r *http.Request) {
 	var c impressora.Config
-	if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+	if err := json.NewDecoder(io.LimitReader(r.Body, limiteConfig)).Decode(&c); err != nil {
 		falhar(w, http.StatusBadRequest, err)
 		return
 	}
@@ -126,7 +126,7 @@ func (s *servidor) alterarEstado(w http.ResponseWriter, r *http.Request) {
 	if i == nil {
 		return
 	}
-	corpo, err := io.ReadAll(r.Body)
+	corpo, err := io.ReadAll(io.LimitReader(r.Body, limiteConfig))
 	if err != nil {
 		falhar(w, http.StatusBadRequest, err)
 		return

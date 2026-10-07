@@ -71,7 +71,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	srv := &http.Server{Handler: web.Rotas(g)}
+	srv := &http.Server{
+		Handler:           web.Protegido(web.Rotas(g), web.HostLocal(*host)),
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 	go func() {
 		if err := srv.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatal(err)
