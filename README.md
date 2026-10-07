@@ -15,7 +15,20 @@ desligada...
   ZplEscPrinter, que manda cupons e etiquetas para a internet).
 - Mostra o que cada byte significa e avisa os erros comuns de integração.
 
-## Rodar
+## Baixar e usar
+
+Não precisa instalar Go nem nada de desenvolvimento: baixe o executável da
+[última versão](https://github.com/AnaMarcelaSilva/bobina-emulador/releases/latest).
+
+| Sistema | Arquivo | Como abrir |
+|---|---|---|
+| Windows 10 ou 11 | `bobina-windows-amd64.exe` | Dois cliques. O Windows avisa que o app não é reconhecido (ele não é assinado): **Mais informações → Executar assim mesmo**. |
+| Linux (Ubuntu 22.04 ou mais novo) | `bobina-linux-amd64` | `chmod +x bobina-linux-amd64` e depois `./bobina-linux-amd64`. Se a janela não abrir: `sudo apt install libwebkit2gtk-4.1-0`. |
+
+Cada versão traz o arquivo `SHA256SUMS` para conferir que o download não foi
+alterado: `sha256sum -c SHA256SUMS --ignore-missing`.
+
+## Compilar o código
 
 ```bash
 go run .                 # abre o aplicativo

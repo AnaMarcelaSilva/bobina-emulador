@@ -1,0 +1,70 @@
+# Publica uma Release com os executáveis quando uma tag de versão é enviada:
+#   git tag v0.1.0 && git push origin v0.1.0
+# Versões 0.x saem como pré-lançamento.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write # só para criar a Release desta tag
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    # Compila num Ubuntu 22.04 para o executável de Linux rodar no 22.04 e
+    # nas versões mais novas (a glibc do sistema onde compila é o mínimo).
+    container: ubuntu:22.04
+    steps:
+      - name: Dependências para compilar a janela (GTK + WebKit)
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            ca-certificates git gcc pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Testes
+        run: go test ./...
+
+      - name: Executáveis
+        env:
+          VERSAO: ${{ github.ref_name }}
+        run: |
+          mkdir -p dist
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=1 \
+            go build -trimpath -buildvcs=false -ldflags "-s -w" -o dist/bobina-linux-amd64 .
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
+            go build -trimpath -buildvcs=false -ldflags "-s -w -H windowsgui" -o dist/bobina-windows-amd64.exe .
+          cd dist && sha256sum bobina-* > SHA256SUMS && cat SHA256SUMS
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/bobina-linux-amd64
+            dist/bobina-windows-amd64.exe
+            dist/SHA256SUMS
+          prerelease: ${{ startsWith(github.ref_name, 'v0.') || contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          body: |
+            ## Baixar e usar
+
+            **Windows 10 ou 11:** baixe `bobina-windows-amd64.exe` e abra com dois cliques.
+            Como o executável não é assinado, o Windows mostra o aviso do SmartScreen:
+            clique em **Mais informações → Executar assim mesmo**.
+
+            **Linux (Ubuntu 22.04 ou mais novo):** baixe `bobina-linux-amd64` e rode:
+            ```bash
+            chmod +x bobina-linux-amd64
+            ./bobina-linux-amd64
+            ```
+            Se a janela não abrir, instale a biblioteca da janela:
+            `sudo apt install libwebkit2gtk-4.1-0`.
+
+            Para conferir o arquivo baixado: `sha256sum -c SHA256SUMS --ignore-missing`.

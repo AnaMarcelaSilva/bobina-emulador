@@ -8,18 +8,18 @@ GO ?= go
 todos: linux windows mac
 
 linux:
-	GOOS=linux GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o dist/bobina-linux .
+	GOOS=linux GOARCH=amd64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o dist/bobina-linux .
 
 # Sem janela de console: abre direto a tela, como um aplicativo.
 windows:
-	GOOS=windows GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS) -H windowsgui" -o dist/bobina.exe .
+	GOOS=windows GOARCH=amd64 $(GO) build -trimpath -ldflags "$(LDFLAGS) -H windowsgui" -o dist/bobina.exe .
 
 # Com console, para usar "bobina enviar" e "bobina status" no Windows.
 windows-console:
-	GOOS=windows GOARCH=amd64 $(GO) build -ldflags "$(LDFLAGS)" -o dist/bobina-console.exe .
+	GOOS=windows GOARCH=amd64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o dist/bobina-console.exe .
 
 mac:
-	GOOS=darwin GOARCH=arm64 $(GO) build -ldflags "$(LDFLAGS)" -o dist/bobina-mac .
+	GOOS=darwin GOARCH=arm64 $(GO) build -trimpath -ldflags "$(LDFLAGS)" -o dist/bobina-mac .
 
 testes:
 	$(GO) test -race ./...
