@@ -6,6 +6,8 @@ na sua conexão (rede, serial ou pasta PRN), respondendo ao status como uma
 impressora real, e você decide se ela está sem papel, com a tampa aberta,
 desligada...
 
+![Bobina com três impressoras lado a lado: um cupom ESC/POS, uma etiqueta ZPL e um pedido de cozinha numa Bematech](docs/tela.png)
+
 - Aplicativo de desktop com janela nativa e sem navegador: GTK + WebKit no
   Linux, WebView2 no Windows (já vem no Windows 10 e 11). Um executável só, de
   ~8 MB, sem Electron.
@@ -154,3 +156,8 @@ e a API.
 - ZPL: fontes aproximadas (a fonte 0 da Zebra é desenhada com uma fonte condensada do sistema); `^DF`/`^XF` (modelos guardados) e `^GF` binário não são suportados.
 - ESC/POS: gráficos `GS ( L` / `GS 8 L` e logotipos guardados na impressora (`FS p`) aparecem só como marcação; Code 93, Codabar, UPC-E e PDF417 não são desenhados.
 - Os trabalhos ficam em memória (os 200 mais recentes por impressora).
+
+## Licença
+
+[MIT](LICENSE): pode usar, copiar, modificar e distribuir, inclusive em
+projetos comerciais, desde que mantenha o aviso de copyright e a licença.
